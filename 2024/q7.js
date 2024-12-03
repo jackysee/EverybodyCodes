@@ -29,9 +29,6 @@ const rankSquire = (s) => {
         .join('');
 };
 
-// console.log(rank(s));
-console.log('Part1', rankSquire(p1));
-
 // const t = `S+===
 // -   +
 // =+=-+`;
@@ -79,29 +76,31 @@ const knightRace = (s, track) => {
         .join('');
 };
 
-const planValid = (plan) =>
-    plan.filter((v) => v == '+').length == 5 &&
-    plan.filter((v) => v == '-').length == 3 &&
-    plan.filter((v) => v == '=').length == 3;
-
-const NUM2SIGN = ['+', '-', '='];
+const generatePlans = (a, b, c) => {
+    const allPlans = [];
+    const gen = (a, b, c, sequence = '') => {
+        if (a === 0 && b === 0 && c === 0) {
+            allPlans.push(sequence);
+            return;
+        }
+        if (a > 0) gen(a - 1, b, c, sequence + '+');
+        if (b > 0) gen(a, b - 1, c, sequence + '-');
+        if (c > 0) gen(a, b, c - 1, sequence + '=');
+    };
+    gen(a, b, c);
+    return allPlans;
+};
 
 const countPlans = (rival, track) => {
     const rivalPlan = parse(rival)[0];
     const tracks = parseTrack(track);
     const round = tracks.length * 11;
     const score = race(rivalPlan, round, tracks);
-    let count = 0;
-    for (let i = 0; i < Math.pow(3, 11); i++) {
-        const stg = i
-            .toString(3)
-            .padStart(11, '0')
-            .split('')
-            .map((v) => NUM2SIGN[v]);
-        if (planValid(stg) && race({ stg }, round, tracks) > score) count++;
-    }
-    return count;
+    return generatePlans(5, 3, 3).filter(
+        (p) => race({ stg: p.split('') }, round, tracks) > score
+    ).length;
 };
 
+console.log('Part1', rankSquire(p1));
 console.log('Part2', knightRace(p2, t2));
 console.log('Part3', countPlans(p3, t3));
